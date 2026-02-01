@@ -1,0 +1,30 @@
+# Configuration for Cog - https://github.com/replicate/cog
+# Replicate deployment for HOMR - Optical Music Recognition
+
+build:
+  gpu: true
+  cuda: "12.4"
+  python_version: "3.11"
+
+  system_packages:
+    - "libgl1-mesa-glx"
+    - "libglib2.0-0"
+
+  python_packages:
+    - "numpy>=2.0.0"
+    - "opencv-python-headless>=4.10.0"
+    - "Pillow>=10.0.0"
+    - "musicxml==1.4"
+    - "rapidocr-onnxruntime>=1.4.0"
+    - "requests>=2.31.0"
+    - "typing_extensions>=4.0.0"
+
+  run:
+    # Install cuDNN 9 with allow-change-held-packages
+    - "apt-get update && apt-get install -y --allow-change-held-packages libcudnn9-cuda-12 && rm -rf /var/lib/apt/lists/*"
+    # Remove any onnxruntime that may have been installed as dependency
+    - "pip uninstall -y onnxruntime onnxruntime-gpu || true"
+    # Install onnxruntime-gpu 1.19.2 - supports ONNX IR v10, NumPy 2.x, and CUDA 12.x + cuDNN 9
+    - "pip install --no-cache-dir onnxruntime-gpu==1.19.2"
+
+predict: "predict.py:Predictor"
